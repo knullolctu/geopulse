@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --comic-bg: #fff8c4;
+  --dark-border: #2b2b2b;
+}
+
+@layer base {
+  *, ::after, ::before {
+    border-color: var(--dark-border);
+    box-sizing: border-box;
+  }
+  body {
+    @apply bg-white text-slate-900 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+.bg-comic-bg {
+  background-color: var(--comic-bg);
+}
+
+.border-dark-border {
+  border-color: var(--dark-border);
+}
+
+.comic-shadow {
+  box-shadow: 6px 6px 0px 0px var(--dark-border);
+}
+
+.comic-shadow-lg {
+  box-shadow: 12px 12px 0px 0px var(--dark-border);
+}
+
+.comic-shadow-hover:hover {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

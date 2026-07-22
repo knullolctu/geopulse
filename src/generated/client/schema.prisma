@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model admin {
+  id           String         @id
+  email        String         @unique(map: "Admin_email_key")
+  name         String
+  passwordHash String
+  birthDate    DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  adminsession adminsession[]
+}
+
+model adminsession {
+  id        String   @id
+  adminId   String
+  token     String   @unique(map: "AdminSession_token_key")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  admin     admin    @relation(fields: [adminId], references: [id], onDelete: Cascade, map: "AdminSession_adminId_fkey")
+
+  @@index([adminId], map: "AdminSession_adminId_fkey")
+}
+
+model attendancelog {
+  id               String    @id
+  attendeeId       String
+  geofenceId       String
+  deviceLat        Float
+  deviceLng        Float
+  isMock           Boolean   @default(false)
+  status           String    @default("SUCCESS")
+  timestamp        DateTime  @default(now())
+  afternoonTimeOut DateTime?
+  morningTimeIn    DateTime?
+  afternoonTimeIn  DateTime?
+  morningTimeOut   DateTime?
+  attendee         attendee  @relation(fields: [attendeeId], references: [id], onDelete: Cascade, map: "AttendanceLog_attendeeId_fkey")
+  geofence         geofence  @relation(fields: [geofenceId], references: [id], onDelete: Cascade, map: "AttendanceLog_geofenceId_fkey")
+
+  @@index([attendeeId], map: "AttendanceLog_attendeeId_fkey")
+  @@index([geofenceId], map: "AttendanceLog_geofenceId_fkey")
+}
+
+model attendee {
+  id              String            @id
+  email           String            @unique(map: "Attendee_email_key")
+  name            String
+  passwordHash    String
+  birthDate       DateTime?
+  orgCode         String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  isVerified      Boolean           @default(false)
+  categoryId      String?
+  attendancelog   attendancelog[]
+  category        category?         @relation(fields: [categoryId], references: [id], map: "Attendee_categoryId_fkey")
+  organization    organization?     @relation(fields: [orgCode], references: [orgCode], map: "Attendee_orgCode_fkey")
+  attendeesession attendeesession[]
+  enrollment      enrollment[]
+
+  @@index([categoryId], map: "Attendee_categoryId_idx")
+  @@index([orgCode], map: "Attendee_orgCode_fkey")
+}
+
+model attendeesession {
+  id         String   @id
+  attendeeId String
+  token      String   @unique(map: "AttendeeSession_token_key")
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  attendee   attendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade, map: "AttendeeSession_attendeeId_fkey")
+
+  @@index([attendeeId], map: "AttendeeSession_attendeeId_fkey")
+}
+
+model category {
+  id           String       @id
+  name         String
+  orgId        String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime
+  attendee     attendee[]
+  organization organization @relation(fields: [orgId], references: [id], onDelete: Cascade, map: "Category_orgId_fkey")
+
+  @@unique([orgId, name], map: "Category_orgId_name_key")
+}
+
+model client {
+  id            String          @id
+  email         String          @unique(map: "Client_email_key")
+  name          String
+  passwordHash  String
+  birthDate     DateTime?
+  orgCode       String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  isVerified    Boolean         @default(false)
+  organization  organization?   @relation(fields: [orgCode], references: [orgCode], map: "Client_orgCode_fkey")
+  clientsession clientsession[]
+  geofence      geofence[]
+
+  @@index([orgCode], map: "Client_orgCode_fkey")
+}
+
+model clientsession {
+  id        String   @id
+  clientId  String
+  token     String   @unique(map: "ClientSession_token_key")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  client    client   @relation(fields: [clientId], references: [id], onDelete: Cascade, map: "ClientSession_clientId_fkey")
+
+  @@index([clientId], map: "ClientSession_clientId_fkey")
+}
+
+model enrollment {
+  id         String   @id
+  attendeeId String
+  geofenceId String
+  createdAt  DateTime @default(now())
+  attendee   attendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade, map: "Enrollment_attendeeId_fkey")
+  geofence   geofence @relation(fields: [geofenceId], references: [id], onDelete: Cascade, map: "Enrollment_geofenceId_fkey")
+
+  @@unique([attendeeId, geofenceId], map: "Enrollment_attendeeId_geofenceId_key")
+  @@index([geofenceId], map: "Enrollment_geofenceId_fkey")
+}
+
+model geofence {
+  id                                        String          @id
+  name                                      String
+  latitude                                  Float
+  longitude                                 Float
+  radius                                    Int
+  isActive                                  Boolean         @default(true)
+  orgId                                     String
+  createdByClientId                         String
+  createdAt                                 DateTime        @default(now())
+  updatedAt                                 DateTime
+  attendancelog                             attendancelog[]
+  enrollment                                enrollment[]
+  client                                    client          @relation(fields: [createdByClientId], references: [id], map: "Geofence_createdByClientId_fkey")
+  organization_geofence_orgIdToorganization organization    @relation("geofence_orgIdToorganization", fields: [orgId], references: [id], map: "Geofence_orgId_fkey")
+
+  @@index([createdByClientId], map: "Geofence_createdByClientId_fkey")
+  @@index([orgId], map: "Geofence_orgId_fkey")
+}
+
+model organization {
+  id                                    String     @id
+  name                                  String
+  description                           String?
+  orgCode                               String?    @unique(map: "Organization_orgCode_key")
+  createdAt                             DateTime   @default(now())
+  updatedAt                             DateTime
+  isActive                              Boolean    @default(true)
+  requestedById                         String?
+  attendee                              attendee[]
+  category                              category[]
+  client                                client[]
+  geofence_geofence_orgIdToorganization geofence[] @relation("geofence_orgIdToorganization")
+}
