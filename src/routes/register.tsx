@@ -3,7 +3,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import Card from '../components/Card'
 import { THEME } from '../theme'
 import { useNotification } from '../components/Notification'
-import { registerFn } from '../lib/authentication'
+import { clientRegister } from '../lib/client-auth'
 import { useNavigate } from '@tanstack/react-router'
 
 // Password validation function
@@ -74,19 +74,18 @@ function RegisterPage() {
     setIsSubmitting(true)
 
     try {
-      const payload: any = {
+      const result = await clientRegister({
         name,
         email,
         password,
-        birthDate: new Date(birthDate).toISOString()
-      }
-      const result = await registerFn({ data: payload })
+        birthDate,
+      })
       if (result.success) {
         showNotif('Account created successfully!', 'success')
         setTimeout(() => navigate({ to: '/login' }), 800)
         return
       }
-      showNotif('Registration failed. Check your details.', 'error')
+      showNotif(result.error || 'Registration failed. Check your details.', 'error')
     } catch (err: any) {
       showNotif(err?.message || 'Registration failed. Check your details.', 'error')
     } finally {

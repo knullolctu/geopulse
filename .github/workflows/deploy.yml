@@ -44,51 +44,8 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'sb_publishable_26P1ZTgbvtoxkGs5nMr6vQ_mINxq3uu' }}
         run: pnpm run build
 
-      - name: Start SSR Server & Prerender Index HTML
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://osyezzrxayqwksmwjikf.supabase.co' }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'sb_publishable_26P1ZTgbvtoxkGs5nMr6vQ_mINxq3uu' }}
-        run: |
-          # Start the dev server in background for SSR prerendering
-          pnpm run dev &
-          DEV_PID=$!
-          
-          # Wait for it to be ready
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:3000/ > /dev/null 2>&1; then
-              echo "Dev server ready"
-              break
-            fi
-            echo "Waiting... ($i)"
-            sleep 2
-          done
-          
-          # Fetch SSR HTML
-          RAW_HTML=$(curl -sf http://localhost:3000/)
-          
-          # Get production asset filenames
-          MAIN_JS=$(ls dist/client/assets/index-*.js 2>/dev/null | head -1 | xargs basename)
-          MAIN_CSS=$(ls dist/client/assets/index-*.css 2>/dev/null | head -1 | xargs basename)
-          MAP_CSS=$(ls dist/client/assets/Map-*.css 2>/dev/null | head -1 | xargs basename)
-          
-          echo "JS: $MAIN_JS, CSS: $MAIN_CSS, MAP: $MAP_CSS"
-          
-          # Strip dev-only links and inject production assets
-          PROD_HTML=$(echo "$RAW_HTML" | \
-            sed 's|<link rel="modulepreload" href="/@id/virtual:tanstack-start-dev-client-entry"/>||g' | \
-            sed 's|<link [^>]*data-tanstack-router-dev-styles[^>]*/>||g' | \
-            sed "s|</head>|<link rel=\"stylesheet\" crossorigin href=\"./assets/${MAIN_CSS}\" />\n<link rel=\"stylesheet\" crossorigin href=\"./assets/${MAP_CSS}\" />\n<script type=\"module\" crossorigin src=\"./assets/${MAIN_JS}\"></script>\n</head>|g" \
-          )
-          
-          # Save index.html and 404.html
-          echo "$PROD_HTML" > dist/client/index.html
-          echo "$PROD_HTML" > dist/client/404.html
-          touch dist/client/.nojekyll
-          
-          echo "Generated index.html ($(wc -c < dist/client/index.html) bytes)"
-          
-          # Kill dev server
-          kill $DEV_PID 2>/dev/null || true
+      - name: Prepare GitHub Pages Static Files
+        run: node scripts/prepare-gh-pages.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

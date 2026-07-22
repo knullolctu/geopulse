@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSessionFn } from '../../lib/authentication'
+import { clientGetSession } from '../../lib/client-auth'
 import { getAttendeesFn, deleteUserFn, createUserFn, getCategoriesFn, updateUserFn, getGeofencesByOrgFn, bulkEnrollFn } from '../../lib/queries'
 import { THEME } from '../../theme'
 import { useNotification } from '../../components/Notification'
@@ -48,7 +48,7 @@ function ClientUsersPage() {
 
   const { data: sessionUser, isLoading: sessionLoading } = useQuery({
     queryKey: ['session-user'],
-    queryFn: () => getSessionFn(),
+    queryFn: () => clientGetSession(),
   })
 
   const { data: geofences } = useQuery({

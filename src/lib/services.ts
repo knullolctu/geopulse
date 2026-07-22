@@ -1,4 +1,3 @@
-import { getPrisma, prisma } from '../database'
 import { supabase } from './supabase'
 
 export interface DBAdapter {
@@ -35,6 +34,7 @@ export interface DBAdapter {
 async function isPrismaAvailable(): Promise<boolean> {
   if (typeof window !== 'undefined') return false
   try {
+    const { getPrisma } = await import('../database')
     await getPrisma()
     return true
   } catch {
@@ -503,22 +503,5 @@ const prismaDb: DBAdapter = {
   enrollAttendee: async (attendeeId, geofenceIds) => supabaseDb.enrollAttendee(attendeeId, geofenceIds)
 }
 
-// Smart proxy: Tries Prisma when available, seamlessly falls back to Supabase
-export const db = new Proxy(supabaseDb, {
-  get: (target: any, prop: string) => {
-    return async (...args: any[]) => {
-      const prismaReady = await isPrismaAvailable()
-      const activeAdapter = prismaReady ? prismaDb : supabaseDb
-      const fn = activeAdapter[prop as keyof DBAdapter]
-      if (typeof fn === 'function') {
-        try {
-          return await fn.apply(activeAdapter, args)
-        } catch (err) {
-          console.warn(`[db.${prop}] Primary adapter failed, falling back to Supabase:`, err)
-          return await (supabaseDb as any)[prop].apply(supabaseDb, args)
-        }
-      }
-      return fn
-    }
-  }
-})
+// Supabase Adapter export for client/server seamless compatibility
+export const db: DBAdapter = supabaseDb

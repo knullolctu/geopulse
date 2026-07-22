@@ -1,18 +1,18 @@
 /**
- * Pre-renders the GeoPulse landing page HTML by calling TanStack Start's server
- * and saves the result as dist/client/index.html for GitHub Pages deployment.
- *
- * TanStack Start uses hydrateRoot(document, ...) which requires full SSR HTML.
- * GitHub Pages is static, so we generate the HTML at build time (SSG).
+ * Prepares dist/client for GitHub Pages deployment.
+ * Generates index.html, 404.html (for SPA router fallback), and .nojekyll.
  */
 import fs from 'fs'
 import path from 'path'
-import http from 'http'
 
 const CLIENT_DIR = path.resolve('dist/client')
 const ASSETS_DIR = path.join(CLIENT_DIR, 'assets')
 
-// Step 1: Find JS/CSS bundles
+if (!fs.existsSync(ASSETS_DIR)) {
+  console.error('dist/client/assets/ directory does not exist!')
+  process.exit(1)
+}
+
 const files = fs.readdirSync(ASSETS_DIR)
 const mainJs = files.find(f => f.startsWith('index-') && f.endsWith('.js'))
 const mainCss = files.find(f => f.startsWith('index-') && f.endsWith('.css'))
@@ -27,23 +27,6 @@ console.log('Found main JS:', mainJs)
 console.log('Found main CSS:', mainCss)
 console.log('Found map CSS:', mapCss)
 
-// Step 2: Try to fetch prerendered HTML from the TanStack Start dev server
-async function fetchPrerenderedHTML() {
-  return new Promise((resolve) => {
-    const req = http.get('http://localhost:3000/', (res) => {
-      let data = ''
-      res.on('data', chunk => data += chunk)
-      res.on('end', () => resolve(data))
-    })
-    req.on('error', () => resolve(null))
-    req.setTimeout(3000, () => {
-      req.destroy()
-      resolve(null)
-    })
-  })
-}
-
-// Step 3: Generate minimal HTML with all necessary assets
 function generateHTML() {
   const cssLinks = [
     mainCss ? `    <link rel="stylesheet" crossorigin href="./assets/${mainCss}" />` : '',
@@ -56,24 +39,23 @@ function generateHTML() {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GeoPulse - Advanced Geofence Attendance</title>
-    <meta name="description" content="High-precision geofence tracking and attendance verification. Eliminate manual attendance errors with boundary-based location verification." />
+    <base href="/geopulse/" />
+    <meta name="description" content="High-precision geofence tracking and attendance verification." />
     <link rel="icon" type="image/png" href="./logo.png" />
     <link rel="manifest" href="./manifest.json" />
 ${cssLinks}
     <script type="module" crossorigin src="./assets/${mainJs}"></script>
   </head>
-  <body>
+  <body class="bg-slate-50 text-slate-900">
+    <div id="root"></div>
   </body>
 </html>
 `
 }
 
 const html = generateHTML()
-fs.writeFileSync(path.join(CLIENT_DIR, 'index.html'), html)
-fs.writeFileSync(path.join(CLIENT_DIR, '404.html'), html)
+fs.writeFileSync(path.join(CLIENT_DIR, 'index.html'), html, 'utf8')
+fs.writeFileSync(path.join(CLIENT_DIR, '404.html'), html, 'utf8')
 fs.writeFileSync(path.join(CLIENT_DIR, '.nojekyll'), '')
 
-console.log('✓ Generated index.html, 404.html, .nojekyll in dist/client/')
-console.log()
-console.log('NOTE: TanStack Start uses hydrateRoot(document, ...) which needs SSR HTML.')
-console.log('The app will render correctly once React loads and hydrates the document.')
+console.log('✓ Successfully generated index.html, 404.html, and .nojekyll in dist/client/')

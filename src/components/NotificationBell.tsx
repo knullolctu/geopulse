@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Card from './Card'
-import { getSessionFn } from '../lib/authentication'
+import { clientGetSession } from '../lib/client-auth'
 import { getUnverifiedUsersFn, verifyUserFn, getPendingOrganizationsFn, approveOrganizationFn, deleteOrganizationFn, getGeofencesByOrgFn } from '../lib/queries'
 import { useNotification } from './Notification'
 
@@ -14,7 +14,7 @@ export default function NotificationBell() {
 
   useEffect(() => {
     let mounted = true
-    getSessionFn().then((s: any) => { if (mounted) setUser(s) }).catch(() => {})
+    clientGetSession().then((s: any) => { if (mounted) setUser(s) }).catch(() => {})
     return () => { mounted = false }
   }, [])
 

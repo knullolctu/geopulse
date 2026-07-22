@@ -3,8 +3,8 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import Card from '../components/Card'
 import { THEME } from '../theme'
 import { useNotification } from '../components/Notification'
-import { loginFn, verifyIdentityFn, resetPasswordFn } from '../lib/authentication'
-import type { LoginResult } from '../lib/types'
+import { clientLogin } from '../lib/client-auth'
+import { supabase } from '../lib/supabase'
 
 export const Route = createFileRoute('/login')({
   head: () => ({ meta: [{ title: 'GeoPulse - Login' }] }),
@@ -33,24 +33,21 @@ function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      const result = (await loginFn({ data: { email, password } })) as LoginResult
-      if (result.success) {
+      const result = await clientLogin(email, password)
+      if (result.success && result.user) {
         showNotif('Welcome back!', 'success')
         const role = result.user.role
-        // If user has no organization, send them to onboarding (skip for Admins)
-        if (!result.user.orgCode && result.user.role !== 'Admin') {
+        if (!result.user.orgCode && role !== 'Admin') {
           navigate({ to: '/onboard' })
           return
         }
-
         if (role === 'Admin') navigate({ to: '/admin/dashboard' })
         else if (role === 'Attendee') navigate({ to: '/attendee/dashboard' })
         else if (role === 'Client') navigate({ to: '/client/dashboard' })
         else navigate({ to: '/' })
         return
       }
-
-      showNotif(result.message || 'Login failed. Please try again.', 'error')
+      showNotif(result.error || 'Login failed. Please try again.', 'error')
     } catch (err: any) {
       showNotif(err?.message || 'Login failed. Please try again.', 'error')
     } finally {
@@ -62,8 +59,12 @@ function LoginPage() {
     e.preventDefault()
     setIsVerifying(true)
     try {
-      const result = await verifyIdentityFn({ data: { email: forgotEmail, birthDate: forgotBday } })
-      if (result.success) {
+      // Verify identity by checking email + birthdate match in Supabase
+      const email = forgotEmail.toLowerCase().trim()
+      const bday = new Date(forgotBday).toISOString().split('T')[0]
+      const { data: a } = await supabase.from('attendee').select('birthDate').eq('email', email).maybeSingle()
+      const match = a && a.birthDate && a.birthDate.split('T')[0] === bday
+      if (match) {
         showNotif('Identity verified! Please set your new password.', 'success')
         setForgotStep(2)
       } else {
@@ -82,11 +83,14 @@ function LoginPage() {
       showNotif('Passwords do not match', 'error')
       return
     }
-
     setIsResetting(true)
     try {
-      const result = await resetPasswordFn({ data: { email: forgotEmail, birthDate: forgotBday, newPassword } })
-      showNotif(result.message || 'Password reset successfully!', 'success')
+      const email = forgotEmail.toLowerCase().trim()
+      const sha = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(newPassword))
+      const hash = Array.from(new Uint8Array(sha)).map(b => b.toString(16).padStart(2, '0')).join('')
+      const { error } = await supabase.from('attendee').update({ passwordHash: hash, updatedAt: new Date().toISOString() }).eq('email', email)
+      if (error) throw error
+      showNotif('Password reset successfully!', 'success')
       setShowForgot(false)
       setForgotStep(1)
       setForgotEmail('')

@@ -15,13 +15,10 @@ export default defineConfig({
     }
   },
   server: {
-    static: true,
-    prerender: {
-      routes: ['/'],
-      crawlLinks: false,
-    },
+    preset: 'static',
   },
   vite: {
+    base: '/geopulse/',
     server: {
       allowedHosts: true,
     },

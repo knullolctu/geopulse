@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { createFileRoute, useNavigate, Link, redirect } from '@tanstack/react-router'
 import Card from '../components/Card'
-import { getSessionFn, joinOrgFn, createOrgAndJoinFn } from '../lib/authentication'
+import { clientGetSession } from '../lib/client-auth'
 import { getCategoriesByOrgCodeFn, cancelPendingOrgRequestFn } from '../lib/queries'
 import { useNotification } from '../components/Notification'
 import ProfileButton from '../components/ProfileButton'
@@ -11,7 +11,7 @@ import { Key, ShieldCheck, UserCheck, X, ArrowRight, ArrowLeft, CheckCircle2, Bu
 export const Route = createFileRoute('/onboard')({
   beforeLoad: async () => {
     // Proactive check on reload or navigation
-    const session = await getSessionFn()
+    const session = await clientGetSession()
     
     // 1. If not logged in, go to login
     if (!session) {
@@ -246,7 +246,7 @@ function OnboardPage() {
   useEffect(() => {
     // If for some reason beforeLoad data is missing, fetch it
     if (!initialSession) {
-      getSessionFn().then(s => {
+      clientGetSession().then(s => {
         setSession(s)
         setLoading(false)
       })
@@ -272,7 +272,7 @@ function OnboardPage() {
     try {
       await joinOrgFn({ data: { orgCode: joinCode, categoryId: joinCategory || undefined } })
       showNotif('Successfully joined organization!', 'success')
-      const freshSession = await getSessionFn()
+      const freshSession = await clientGetSession()
       if (freshSession?.role === 'Client') navigate({ to: '/client/dashboard' })
       else navigate({ to: '/attendee/dashboard' })
     } catch (err: any) {
@@ -289,7 +289,7 @@ function OnboardPage() {
       await createOrgAndJoinFn({ data: { name: orgName, description: orgDesc } })
       setModalStep(2)
       // Refresh session to show pending state on the main page
-      const freshSession = await getSessionFn()
+      const freshSession = await clientGetSession()
       setSession(freshSession)
     } catch (err: any) {
       showNotif(err?.message || 'Failed to request organization', 'error')
@@ -305,7 +305,7 @@ function OnboardPage() {
     try {
       await cancelPendingOrgRequestFn()
       showNotif('Request cancelled successfully', 'success')
-      const s = await getSessionFn()
+      const s = await clientGetSession()
       setSession(s)
     } catch (err: any) {
       showNotif(err?.message || 'Failed to cancel request', 'error')

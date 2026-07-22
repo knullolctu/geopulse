@@ -4,11 +4,11 @@ import AttendeeSidebar from '@/components/AttendeeSidebar'
 import ProfileButton from '@/components/ProfileButton'
 import NotificationBell from '@/components/NotificationBell'
 import { THEME } from '../theme'
-import { getSessionFn } from '../lib/authentication'
+import { clientGetSession } from '../lib/client-auth'
 
 export const Route = createFileRoute('/attendee')({
   beforeLoad: async () => {
-    const user = await getSessionFn()
+    const user = await clientGetSession()
     if (!user || user.role !== 'Attendee') {
       throw redirect({ to: '/login' })
     }

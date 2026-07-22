@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/geopulse/' : '/',
+  base: '/geopulse/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

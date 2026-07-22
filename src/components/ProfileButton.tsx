@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { THEME } from '../theme'
 import Card from './Card'
-import { getSessionFn, logoutFn } from '../lib/authentication'
+import { clientGetSession, clientLogout } from '../lib/client-auth'
 import { useNotification } from './Notification'
 
 export default function ProfileButton() {
@@ -14,7 +14,7 @@ export default function ProfileButton() {
 
   useEffect(() => {
     async function fetchUser() {
-      const sessionUser = await getSessionFn()
+      const sessionUser = await clientGetSession()
       setUser(sessionUser)
     }
     fetchUser()
@@ -41,7 +41,7 @@ export default function ProfileButton() {
     })
 
     if (ok) {
-      await logoutFn()
+      await clientLogout()
       navigate({ to: '/login' })
     }
   }
