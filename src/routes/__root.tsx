@@ -10,27 +10,39 @@ const queryClient = new QueryClient()
 export const Route = createRootRoute({
   head: () => ({
     meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'GeoPulse',
-      },
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'GeoPulse' },
     ],
   }),
+  shellComponent: RootDocument,
   component: RootComponent,
 })
+
+function RootDocument({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        <QueryClientProvider client={queryClient}>
+          <NotificationProvider>
+            {children}
+          </NotificationProvider>
+        </QueryClientProvider>
+        <DevCreditButton />
+        <Scripts />
+      </body>
+    </html>
+  )
+}
 
 function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <NotificationProvider>
         <Outlet />
-        <DevCreditButton />
       </NotificationProvider>
     </QueryClientProvider>
   )

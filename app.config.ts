@@ -6,13 +6,28 @@ export default defineConfig({
     routesDirectory: 'src/routes',
     generatedRouteTree: 'src/routeTree.gen.ts',
   },
+  routers: {
+    client: {
+      base: '/geopulse',
+    },
+    ssr: {
+      base: '/geopulse',
+    }
+  },
+  server: {
+    static: true,
+    prerender: {
+      routes: ['/'],
+      crawlLinks: false,
+    },
+  },
   vite: {
     server: {
-      allowedHosts: true
+      allowedHosts: true,
     },
     plugins: [
-        // @ts-ignore
-        (await import('@tailwindcss/vite')).default()
+      // @ts-ignore
+      (await import('@tailwindcss/vite')).default()
     ]
   }
 })
