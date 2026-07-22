@@ -40,9 +40,11 @@ jobs:
 
       - name: Build Project
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        run: pnpm run build
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://osyezzrxayqwksmwjikf.supabase.co' }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'sb_publishable_26P1ZTgbvtoxkGs5nMr6vQ_mINxq3uu' }}
+        run: |
+          pnpm run build
+          cp dist/client/index.html dist/client/404.html || true
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -50,7 +52,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './dist/client'
 
       - name: Deploy to GitHub Pages
         id: deployment

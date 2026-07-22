@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-BOY_dY-B.js";import{n as t,r as n}from"./theme-BDChCgKP.js";import{W as r}from"./index-B518_vP2.js";r();var i=e();function a({as:e=`section`,children:r,className:a=``,style:o={},...s}){return(0,i.jsx)(e,{className:`${t} ${a}`,style:{...n,...o},...s,children:r})}export{a as t};

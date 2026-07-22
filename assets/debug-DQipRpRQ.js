@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-BOY_dY-B.js";var t=e(),n=()=>(0,t.jsx)(`div`,{className:`p-20 font-black text-4xl`,children:`SYSTEM ONLINE`});export{n as component};
