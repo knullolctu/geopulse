@@ -3,30 +3,29 @@ import { MapContainer, TileLayer, Circle, useMap, useMapEvents, Marker } from 'r
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// Fix for default marker icons in Leaflet
-import icon from 'leaflet/dist/images/marker-icon.png'
-import iconShadow from 'leaflet/dist/images/marker-shadow.png'
-let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
-})
-L.Marker.prototype.options.icon = DefaultIcon
+// Fix default Leaflet marker icons using robust CDN URLs
+if (typeof window !== 'undefined' && L.Icon && L.Icon.Default) {
+  delete (L.Icon.Default.prototype as any)._getIconUrl
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  })
+}
 
-const userLocationIcon = L.divIcon({
+const userLocationIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'user-location-icon',
   html: '<div style="position: relative; width: 24px; height: 24px;"><div style="position: absolute; inset: 0; background: #6366f1; border-radius: 50%; opacity: 0.3; animation: ping 1.5s infinite;"></div><div style="position: absolute; inset: 6px; background: #6366f1; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);"></div></div>',
   iconSize: [24, 24],
   iconAnchor: [12, 12]
-})
- 
-const radiusIcon = L.divIcon({
+}) : undefined
+
+const radiusIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'radius-handle-icon',
   html: '<div style="width: 22px; height: 22px; background: white; border: 4px solid #f43f5e; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.4); cursor: pointer; display: flex; items-center; justify-center;"><div style="width: 6px; height: 6px; background: #f43f5e; border-radius: 50%;"></div></div>',
   iconSize: [22, 22],
   iconAnchor: [11, 11]
-})
+}) : undefined
 
 // Helper to update map view
 function MapUpdater({ center, geofenceId }: { center: [number, number], geofenceId?: string }) {
@@ -82,21 +81,26 @@ export default function Map({
   zoom: initialZoom = 13,
   refreshKey = 0
 }: MapProps) {
+  const [isMounted, setIsMounted] = React.useState(false)
   const [zoom, setZoom] = React.useState(initialZoom)
   const [searchQuery, setSearchQuery] = React.useState('')
   const [suggestions, setSuggestions] = React.useState<any[]>([])
   const [isSearching, setIsSearching] = React.useState(false)
-  const [handleAngle, setHandleAngle] = React.useState(0) // Angle in radians
+  const [handleAngle, setHandleAngle] = React.useState(0)
   const mapRef = React.useRef<L.Map | null>(null)
   const searchTimeout = React.useRef<any>(null)
   const searchContainerRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
-    if (searchContainerRef.current) {
+    setIsMounted(true)
+  }, [])
+
+  React.useEffect(() => {
+    if (isMounted && searchContainerRef.current && L.DomEvent) {
       L.DomEvent.disableClickPropagation(searchContainerRef.current)
       L.DomEvent.disableScrollPropagation(searchContainerRef.current)
     }
-  }, [showSearch])
+  }, [showSearch, isMounted])
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value
@@ -137,7 +141,6 @@ export default function Map({
     }
   }
 
-  // Calculate position for the radius handle (marker on the edge)
   const getRadiusHandlePos = () => {
     if (!previewCircle) return null
     
@@ -145,7 +148,6 @@ export default function Map({
     const offset = previewCircle.radius / earthRadius
     const latRad = previewCircle.lat * Math.PI / 180
     
-    // Use handleAngle to place it anywhere on the circumference
     return {
       lat: previewCircle.lat + (offset * 180 / Math.PI) * Math.sin(handleAngle),
       lng: previewCircle.lng + ((offset * 180 / Math.PI) / Math.cos(latRad)) * Math.cos(handleAngle)
@@ -153,6 +155,16 @@ export default function Map({
   }
 
   const handlePos = getRadiusHandlePos()
+
+  if (!isMounted) {
+    return (
+      <div className="w-full h-full min-h-[300px] bg-slate-100 flex items-center justify-center border-4 border-slate-900 rounded-3xl">
+        <div className="text-center font-black uppercase text-xs tracking-widest text-slate-500 animate-pulse">
+          🗺️ Loading Interactive Map...
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full h-full relative">
@@ -175,7 +187,6 @@ export default function Map({
           maxZoom={22}
         />
 
-        {/* Preview circle when creating */}
         {previewCircle && (
           <>
             <Circle
@@ -190,7 +201,7 @@ export default function Map({
               }}
             />
             <Marker position={[previewCircle.lat, previewCircle.lng]} />
-            {handlePos && (
+            {handlePos && radiusIcon && (
               <Marker 
                 position={[handlePos.lat, handlePos.lng]}
                 draggable={true}
@@ -201,11 +212,9 @@ export default function Map({
                     const pos = marker.getLatLng()
                     const center = L.latLng(previewCircle.lat, previewCircle.lng)
                     
-                    // Update radius
                     const newRadius = center.distanceTo(pos)
                     onRadiusChange?.(Math.round(newRadius))
                     
-                    // Update angle
                     const dy = pos.lat - previewCircle.lat
                     const dx = (pos.lng - previewCircle.lng) * Math.cos(previewCircle.lat * Math.PI / 180)
                     setHandleAngle(Math.atan2(dy, dx))
@@ -234,7 +243,6 @@ export default function Map({
           </>
         )}
 
-        {/* Display multiple geofences (Attendee view) */}
         {geofences.map((gf: any) => (
           <React.Fragment key={gf.id}>
             <Circle
@@ -251,13 +259,11 @@ export default function Map({
           </React.Fragment>
         ))}
 
-        {/* User Location Marker */}
-        {userLocation && (
+        {userLocation && userLocationIcon && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon} />
         )}
       </MapContainer>
       
-      {/* Search Bar Overlay - Moved outside MapContainer to prevent event bubbling */}
       {showSearch && (
         <div 
           ref={searchContainerRef}
@@ -284,7 +290,6 @@ export default function Map({
               </button>
             </div>
 
-            {/* Suggestions Dropdown */}
             {suggestions.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-3 bg-white border-3 border-slate-900 rounded-2xl shadow-[8px_8px_0px_0px_#2b2b2b] overflow-hidden animate-in slide-in-from-top-2 duration-300">
                 {suggestions.map((s, i) => (
@@ -308,7 +313,6 @@ export default function Map({
         </div>
       )}
 
-      {/* Zoom Level Indicator */}
       <div className="absolute bottom-3 left-3 z-[1000] bg-white/80 backdrop-blur-sm px-2 py-1 rounded-md border border-[#2b2b2b]/20 shadow-sm">
         <p className="text-[8px] font-black uppercase tracking-[0.1em] text-slate-500">ZOOM: {zoom.toFixed(1)}x</p>
       </div>
@@ -319,7 +323,6 @@ export default function Map({
         </div>
       )}
 
-      {/* Focus User Button */}
       {userLocation && (
         <button
           onClick={() => mapRef.current?.flyTo([userLocation.lat, userLocation.lng], 18)}
