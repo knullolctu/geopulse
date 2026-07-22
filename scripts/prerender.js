@@ -55,8 +55,6 @@ async function run() {
     env: {
       ...process.env,
       PORT: String(PORT),
-      VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || 'https://osyezzrxayqwksmwjikf.supabase.co',
-      VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_26P1ZTgbvtoxkGs5nMr6vQ_mINxq3uu',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
