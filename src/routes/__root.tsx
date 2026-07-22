@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute, Outlet } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import DevCreditButton from '../components/DevCreditButton'
 import { NotificationProvider } from '../components/Notification'
@@ -22,24 +22,16 @@ export const Route = createRootRoute({
       },
     ],
   }),
-  shellComponent: RootDocument,
+  component: RootComponent,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootComponent() {
   return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <QueryClientProvider client={queryClient}>
-          <NotificationProvider>
-            {children}
-          </NotificationProvider>
-        </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <NotificationProvider>
+        <Outlet />
         <DevCreditButton />
-        <Scripts />
-      </body>
-    </html>
+      </NotificationProvider>
+    </QueryClientProvider>
   )
 }
