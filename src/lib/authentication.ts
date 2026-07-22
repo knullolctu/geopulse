@@ -1,26 +1,45 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from './services'
-import { prisma, getPrisma } from '../database'
 import type { LoginPayload, LoginResult } from './types'
+
+function getClientToken(): string | null {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('geopulse_session') || document.cookie.match(/geopulse_session=([^;]+)/)?.[1] || null
+  }
+  return null
+}
+
+function setClientToken(token: string) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('geopulse_session', token)
+    document.cookie = `geopulse_session=${token}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`
+  }
+}
+
+function removeClientToken() {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('geopulse_session')
+    document.cookie = 'geopulse_session=; path=/; max-age=0'
+  }
+}
 
 export const getSessionFn = createServerFn({ method: 'GET' }).handler(async () => {
   try {
-    await getPrisma()
-    const { getCookie } = await import('@tanstack/react-start/server')
-    const token = getCookie('geopulse_session')
+    let token: string | null = null
+    try {
+      const { getCookie } = await import('@tanstack/react-start/server')
+      token = getCookie('geopulse_session') || null
+    } catch {
+      token = getClientToken()
+    }
+
+    if (!token) token = getClientToken()
     if (!token) return null
+
     const user = await db.getSession(token)
     if (!user) return null
 
-    // Check if user has a pending organization request
-    const pendingOrg = await prisma.organization.findFirst({
-      where: {
-        requestedById: user.id,
-        isActive: false
-      }
-    })
-
-    return { ...user, pendingOrg }
+    return user
   } catch (err) {
     console.error('[getSessionFn] Error:', err)
     return null
@@ -30,7 +49,6 @@ export const getSessionFn = createServerFn({ method: 'GET' }).handler(async () =
 export const loginFn = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => data as LoginPayload)
   .handler(async (ctx): Promise<LoginResult> => {
-    await getPrisma()
     const { email, password } = (ctx.data as LoginPayload) || {}
 
     if (!email || !password) {
@@ -46,32 +64,42 @@ export const loginFn = createServerFn({ method: 'POST' })
       }
 
       const token = await db.createSession(user.id, user.role)
+      setClientToken(token)
 
-      const { setCookie } = await import('@tanstack/react-start/server')
-      setCookie('geopulse_session', token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 30 * 24 * 60 * 60,
-      })
+      try {
+        const { setCookie } = await import('@tanstack/react-start/server')
+        setCookie('geopulse_session', token, {
+          path: '/',
+          httpOnly: false,
+          sameSite: 'lax',
+          maxAge: 30 * 24 * 60 * 60,
+        })
+      } catch {
+        // Fallback for static client execution
+      }
 
       return { success: true, user }
     } catch (err) {
       console.error('LOGIN ERROR:', err)
-      return { success: false, message: 'Login failed due to server error.' }
+      return { success: false, message: 'Login failed.' }
     }
   })
 
 export const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
-  const { getCookie, deleteCookie } = await import('@tanstack/react-start/server')
-  const token = getCookie('geopulse_session')
+  let token: string | null = getClientToken()
+  try {
+    const { getCookie, deleteCookie } = await import('@tanstack/react-start/server')
+    if (!token) token = getCookie('geopulse_session') || null
+    deleteCookie('geopulse_session', { path: '/' })
+  } catch {
+    // Static client fallback
+  }
 
   if (token) {
     await db.deleteSession(token)
   }
 
-  deleteCookie('geopulse_session', { path: '/' })
+  removeClientToken()
   return { success: true }
 })
 
@@ -101,7 +129,6 @@ export const verifyIdentityFn = createServerFn({ method: 'POST' })
 export const resetPasswordFn = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => data as any)
   .handler(async (ctx) => {
-    await getPrisma()
     const { email, birthDate, newPassword } = ctx.data as any
     try {
       const result = await db.resetPassword(email, birthDate, newPassword)
@@ -114,19 +141,12 @@ export const resetPasswordFn = createServerFn({ method: 'POST' })
 export const joinOrgFn = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => data as any)
   .handler(async (ctx) => {
-    await getPrisma()
     const { orgCode, categoryId } = ctx.data as any
-    const { getCookie } = await import('@tanstack/react-start/server')
-    const token = getCookie('geopulse_session')
+    const token = getClientToken()
     if (!token) throw new Error('Not authenticated')
     const session = await db.getSession(token)
     if (!session) throw new Error('Session not found')
 
-    // validate org exists
-    const org = await prisma.organization.findUnique({ where: { orgCode } })
-    if (!org) throw new Error('Organization not found')
-
-    // update user with orgCode (and optional categoryId)
     const updateData: any = { orgCode }
     if (categoryId) updateData.categoryId = categoryId
     return db.updateUser(session.id, session.role, updateData)
@@ -135,17 +155,14 @@ export const joinOrgFn = createServerFn({ method: 'POST' })
 export const createOrgAndJoinFn = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => data as any)
   .handler(async (ctx) => {
-    await getPrisma()
     const rawData = ctx.data as any
     const data = rawData.data || rawData
     const { name, description, orgCode } = data
-    const { getCookie } = await import('@tanstack/react-start/server')
-    const token = getCookie('geopulse_session')
+    const token = getClientToken()
     if (!token) throw new Error('Not authenticated')
     const session = await db.getSession(token)
     if (!session) throw new Error('Session not found')
 
-    // create organization as pending (requires admin approval)
     const org = await db.createOrganization({ 
       name, 
       description,
@@ -154,7 +171,6 @@ export const createOrgAndJoinFn = createServerFn({ method: 'POST' })
       requestedById: session.id
     })
 
-    // join creator to new (pending) org
     await db.updateUser(session.id, session.role, { orgCode: org.orgCode })
     return { success: true, org, message: 'Organization created and pending admin approval' }
   })

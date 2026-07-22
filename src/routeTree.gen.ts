@@ -9,60 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as OnboardRouteImport } from './routes/onboard'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as DebugRouteImport } from './routes/debug'
-import { Route as ClientRouteImport } from './routes/client'
-import { Route as AttendeeRouteImport } from './routes/attendee'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AttendeeRouteImport } from './routes/attendee'
+import { Route as ClientRouteImport } from './routes/client'
+import { Route as DebugRouteImport } from './routes/debug'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as OnboardRouteImport } from './routes/onboard'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as ClientUsersRouteImport } from './routes/client/users'
-import { Route as ClientProfileRouteImport } from './routes/client/profile'
-import { Route as ClientLogsRouteImport } from './routes/client/logs'
-import { Route as ClientGeofencesRouteImport } from './routes/client/geofences'
-import { Route as ClientDashboardRouteImport } from './routes/client/dashboard'
-import { Route as ClientCategoriesRouteImport } from './routes/client/categories'
-import { Route as AttendeeProfileRouteImport } from './routes/attendee/profile'
-import { Route as AttendeeLogsRouteImport } from './routes/attendee/logs'
-import { Route as AttendeeDashboardRouteImport } from './routes/attendee/dashboard'
-import { Route as AdminUsersRouteImport } from './routes/admin/users'
-import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
-import { Route as AdminProfileRouteImport } from './routes/admin/profile'
-import { Route as AdminOrganizationRouteImport } from './routes/admin/organization'
-import { Route as AdminLogsRouteImport } from './routes/admin/logs'
-import { Route as AdminGeofencesRouteImport } from './routes/admin/geofences'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminGeofencesRouteImport } from './routes/admin/geofences'
+import { Route as AdminLogsRouteImport } from './routes/admin/logs'
+import { Route as AdminOrganizationRouteImport } from './routes/admin/organization'
+import { Route as AdminProfileRouteImport } from './routes/admin/profile'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AttendeeDashboardRouteImport } from './routes/attendee/dashboard'
+import { Route as AttendeeLogsRouteImport } from './routes/attendee/logs'
+import { Route as AttendeeProfileRouteImport } from './routes/attendee/profile'
+import { Route as ClientCategoriesRouteImport } from './routes/client/categories'
+import { Route as ClientDashboardRouteImport } from './routes/client/dashboard'
+import { Route as ClientGeofencesRouteImport } from './routes/client/geofences'
+import { Route as ClientLogsRouteImport } from './routes/client/logs'
+import { Route as ClientProfileRouteImport } from './routes/client/profile'
+import { Route as ClientUsersRouteImport } from './routes/client/users'
 
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardRoute = OnboardRouteImport.update({
-  id: '/onboard',
-  path: '/onboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DebugRoute = DebugRouteImport.update({
-  id: '/debug',
-  path: '/debug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ClientRoute = ClientRouteImport.update({
-  id: '/client',
-  path: '/client',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AttendeeRoute = AttendeeRouteImport.update({
-  id: '/attendee',
-  path: '/attendee',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -70,9 +45,34 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AttendeeRoute = AttendeeRouteImport.update({
+  id: '/attendee',
+  path: '/attendee',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientRoute = ClientRouteImport.update({
+  id: '/client',
+  path: '/client',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DebugRoute = DebugRouteImport.update({
+  id: '/debug',
+  path: '/debug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardRoute = OnboardRouteImport.update({
+  id: '/onboard',
+  path: '/onboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -80,74 +80,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const ClientUsersRoute = ClientUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => ClientRoute,
-} as any)
-const ClientProfileRoute = ClientProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => ClientRoute,
-} as any)
-const ClientLogsRoute = ClientLogsRouteImport.update({
-  id: '/logs',
-  path: '/logs',
-  getParentRoute: () => ClientRoute,
-} as any)
-const ClientGeofencesRoute = ClientGeofencesRouteImport.update({
-  id: '/geofences',
-  path: '/geofences',
-  getParentRoute: () => ClientRoute,
-} as any)
-const ClientDashboardRoute = ClientDashboardRouteImport.update({
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => ClientRoute,
-} as any)
-const ClientCategoriesRoute = ClientCategoriesRouteImport.update({
-  id: '/categories',
-  path: '/categories',
-  getParentRoute: () => ClientRoute,
-} as any)
-const AttendeeProfileRoute = AttendeeProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AttendeeRoute,
-} as any)
-const AttendeeLogsRoute = AttendeeLogsRouteImport.update({
-  id: '/logs',
-  path: '/logs',
-  getParentRoute: () => AttendeeRoute,
-} as any)
-const AttendeeDashboardRoute = AttendeeDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AttendeeRoute,
-} as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSettingsRoute = AdminSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminProfileRoute = AdminProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminOrganizationRoute = AdminOrganizationRouteImport.update({
-  id: '/organization',
-  path: '/organization',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminLogsRoute = AdminLogsRouteImport.update({
-  id: '/logs',
-  path: '/logs',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminGeofencesRoute = AdminGeofencesRouteImport.update({
@@ -155,10 +90,75 @@ const AdminGeofencesRoute = AdminGeofencesRouteImport.update({
   path: '/geofences',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminDashboardRoute = AdminDashboardRouteImport.update({
+const AdminLogsRoute = AdminLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOrganizationRoute = AdminOrganizationRouteImport.update({
+  id: '/organization',
+  path: '/organization',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AttendeeDashboardRoute = AttendeeDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => AttendeeRoute,
+} as any)
+const AttendeeLogsRoute = AttendeeLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AttendeeRoute,
+} as any)
+const AttendeeProfileRoute = AttendeeProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AttendeeRoute,
+} as any)
+const ClientCategoriesRoute = ClientCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => ClientRoute,
+} as any)
+const ClientDashboardRoute = ClientDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => ClientRoute,
+} as any)
+const ClientGeofencesRoute = ClientGeofencesRouteImport.update({
+  id: '/geofences',
+  path: '/geofences',
+  getParentRoute: () => ClientRoute,
+} as any)
+const ClientLogsRoute = ClientLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => ClientRoute,
+} as any)
+const ClientProfileRoute = ClientProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => ClientRoute,
+} as any)
+const ClientUsersRoute = ClientUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => ClientRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -338,46 +338,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboard': {
-      id: '/onboard'
-      path: '/onboard'
-      fullPath: '/onboard'
-      preLoaderRoute: typeof OnboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/debug': {
-      id: '/debug'
-      path: '/debug'
-      fullPath: '/debug'
-      preLoaderRoute: typeof DebugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/client': {
-      id: '/client'
-      path: '/client'
-      fullPath: '/client'
-      preLoaderRoute: typeof ClientRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/attendee': {
-      id: '/attendee'
-      path: '/attendee'
-      fullPath: '/attendee'
-      preLoaderRoute: typeof AttendeeRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -387,11 +352,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/attendee': {
+      id: '/attendee'
+      path: '/attendee'
+      fullPath: '/attendee'
+      preLoaderRoute: typeof AttendeeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/client': {
+      id: '/client'
+      path: '/client'
+      fullPath: '/client'
+      preLoaderRoute: typeof ClientRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/debug': {
+      id: '/debug'
+      path: '/debug'
+      fullPath: '/debug'
+      preLoaderRoute: typeof DebugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboard': {
+      id: '/onboard'
+      path: '/onboard'
+      fullPath: '/onboard'
+      preLoaderRoute: typeof OnboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -401,102 +401,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/client/users': {
-      id: '/client/users'
-      path: '/users'
-      fullPath: '/client/users'
-      preLoaderRoute: typeof ClientUsersRouteImport
-      parentRoute: typeof ClientRoute
-    }
-    '/client/profile': {
-      id: '/client/profile'
-      path: '/profile'
-      fullPath: '/client/profile'
-      preLoaderRoute: typeof ClientProfileRouteImport
-      parentRoute: typeof ClientRoute
-    }
-    '/client/logs': {
-      id: '/client/logs'
-      path: '/logs'
-      fullPath: '/client/logs'
-      preLoaderRoute: typeof ClientLogsRouteImport
-      parentRoute: typeof ClientRoute
-    }
-    '/client/geofences': {
-      id: '/client/geofences'
-      path: '/geofences'
-      fullPath: '/client/geofences'
-      preLoaderRoute: typeof ClientGeofencesRouteImport
-      parentRoute: typeof ClientRoute
-    }
-    '/client/dashboard': {
-      id: '/client/dashboard'
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
       path: '/dashboard'
-      fullPath: '/client/dashboard'
-      preLoaderRoute: typeof ClientDashboardRouteImport
-      parentRoute: typeof ClientRoute
-    }
-    '/client/categories': {
-      id: '/client/categories'
-      path: '/categories'
-      fullPath: '/client/categories'
-      preLoaderRoute: typeof ClientCategoriesRouteImport
-      parentRoute: typeof ClientRoute
-    }
-    '/attendee/profile': {
-      id: '/attendee/profile'
-      path: '/profile'
-      fullPath: '/attendee/profile'
-      preLoaderRoute: typeof AttendeeProfileRouteImport
-      parentRoute: typeof AttendeeRoute
-    }
-    '/attendee/logs': {
-      id: '/attendee/logs'
-      path: '/logs'
-      fullPath: '/attendee/logs'
-      preLoaderRoute: typeof AttendeeLogsRouteImport
-      parentRoute: typeof AttendeeRoute
-    }
-    '/attendee/dashboard': {
-      id: '/attendee/dashboard'
-      path: '/dashboard'
-      fullPath: '/attendee/dashboard'
-      preLoaderRoute: typeof AttendeeDashboardRouteImport
-      parentRoute: typeof AttendeeRoute
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/settings': {
-      id: '/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/profile': {
-      id: '/admin/profile'
-      path: '/profile'
-      fullPath: '/admin/profile'
-      preLoaderRoute: typeof AdminProfileRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/organization': {
-      id: '/admin/organization'
-      path: '/organization'
-      fullPath: '/admin/organization'
-      preLoaderRoute: typeof AdminOrganizationRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/logs': {
-      id: '/admin/logs'
-      path: '/logs'
-      fullPath: '/admin/logs'
-      preLoaderRoute: typeof AdminLogsRouteImport
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/geofences': {
@@ -506,12 +415,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminGeofencesRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/dashboard': {
-      id: '/admin/dashboard'
-      path: '/dashboard'
-      fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AdminDashboardRouteImport
+    '/admin/logs': {
+      id: '/admin/logs'
+      path: '/logs'
+      fullPath: '/admin/logs'
+      preLoaderRoute: typeof AdminLogsRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/admin/organization': {
+      id: '/admin/organization'
+      path: '/organization'
+      fullPath: '/admin/organization'
+      preLoaderRoute: typeof AdminOrganizationRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/attendee/dashboard': {
+      id: '/attendee/dashboard'
+      path: '/dashboard'
+      fullPath: '/attendee/dashboard'
+      preLoaderRoute: typeof AttendeeDashboardRouteImport
+      parentRoute: typeof AttendeeRoute
+    }
+    '/attendee/logs': {
+      id: '/attendee/logs'
+      path: '/logs'
+      fullPath: '/attendee/logs'
+      preLoaderRoute: typeof AttendeeLogsRouteImport
+      parentRoute: typeof AttendeeRoute
+    }
+    '/attendee/profile': {
+      id: '/attendee/profile'
+      path: '/profile'
+      fullPath: '/attendee/profile'
+      preLoaderRoute: typeof AttendeeProfileRouteImport
+      parentRoute: typeof AttendeeRoute
+    }
+    '/client/categories': {
+      id: '/client/categories'
+      path: '/categories'
+      fullPath: '/client/categories'
+      preLoaderRoute: typeof ClientCategoriesRouteImport
+      parentRoute: typeof ClientRoute
+    }
+    '/client/dashboard': {
+      id: '/client/dashboard'
+      path: '/dashboard'
+      fullPath: '/client/dashboard'
+      preLoaderRoute: typeof ClientDashboardRouteImport
+      parentRoute: typeof ClientRoute
+    }
+    '/client/geofences': {
+      id: '/client/geofences'
+      path: '/geofences'
+      fullPath: '/client/geofences'
+      preLoaderRoute: typeof ClientGeofencesRouteImport
+      parentRoute: typeof ClientRoute
+    }
+    '/client/logs': {
+      id: '/client/logs'
+      path: '/logs'
+      fullPath: '/client/logs'
+      preLoaderRoute: typeof ClientLogsRouteImport
+      parentRoute: typeof ClientRoute
+    }
+    '/client/profile': {
+      id: '/client/profile'
+      path: '/profile'
+      fullPath: '/client/profile'
+      preLoaderRoute: typeof ClientProfileRouteImport
+      parentRoute: typeof ClientRoute
+    }
+    '/client/users': {
+      id: '/client/users'
+      path: '/users'
+      fullPath: '/client/users'
+      preLoaderRoute: typeof ClientUsersRouteImport
+      parentRoute: typeof ClientRoute
     }
   }
 }
