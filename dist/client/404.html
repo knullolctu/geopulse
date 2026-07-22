@@ -2,17 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GeoPulse - Advanced Geofence Attendance</title>
-    <base href="/geopulse/" />
-    <meta name="description" content="High-precision geofence tracking and attendance verification." />
-    <link rel="icon" type="image/png" href="./logo.png" />
-    <link rel="manifest" href="./manifest.json" />
-    <link rel="stylesheet" crossorigin href="./assets/index-Cgcp45Q4.css" />
-    <link rel="stylesheet" crossorigin href="./assets/Map-vh-t_kPv.css" />
-    <script type="module" crossorigin src="./assets/index-CrIVCZFK.js"></script>
+    <title>GeoPulse</title>
+    <script>
+      var pathSegmentsToKeep = 1;
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.host + l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    </script>
   </head>
-  <body class="bg-slate-50 text-slate-900">
-    <div id="root"></div>
+  <body>
   </body>
 </html>

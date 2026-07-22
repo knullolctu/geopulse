@@ -1,6 +1,6 @@
 /**
- * Prepares dist/client for GitHub Pages deployment.
- * Generates index.html, 404.html (for SPA router fallback), and .nojekyll.
+ * Prepares dist/client for GitHub Pages deployment using the spa-github-pages redirect solution.
+ * Handles deep routing (/geopulse/register, /geopulse/login, etc.) cleanly without 404 asset failures.
  */
 import fs from 'fs'
 import path from 'path'
@@ -27,10 +27,11 @@ console.log('Found main JS:', mainJs)
 console.log('Found main CSS:', mainCss)
 console.log('Found map CSS:', mapCss)
 
-function generateHTML() {
+// 1. Generate index.html with the spa-github-pages query restoration script
+function generateIndexHTML() {
   const cssLinks = [
-    mainCss ? `    <link rel="stylesheet" crossorigin href="./assets/${mainCss}" />` : '',
-    mapCss ? `    <link rel="stylesheet" crossorigin href="./assets/${mapCss}" />` : '',
+    mainCss ? `    <link rel="stylesheet" crossorigin href="/geopulse/assets/${mainCss}" />` : '',
+    mapCss ? `    <link rel="stylesheet" crossorigin href="/geopulse/assets/${mapCss}" />` : '',
   ].filter(Boolean).join('\n')
 
   return `<!DOCTYPE html>
@@ -41,10 +42,23 @@ function generateHTML() {
     <title>GeoPulse - Advanced Geofence Attendance</title>
     <base href="/geopulse/" />
     <meta name="description" content="High-precision geofence tracking and attendance verification." />
-    <link rel="icon" type="image/png" href="./logo.png" />
-    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" type="image/png" href="/geopulse/logo.png" />
+    <link rel="manifest" href="/geopulse/manifest.json" />
+    <!-- SPA Redirect restoration script for GitHub Pages -->
+    <script>
+      (function(l) {
+        if (l.search[1] === '/' ) {
+          var decoded = l.search.slice(1).split('&').map(function(s) { 
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null,
+              l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location));
+    </script>
 ${cssLinks}
-    <script type="module" crossorigin src="./assets/${mainJs}"></script>
+    <script type="module" crossorigin src="/geopulse/assets/${mainJs}"></script>
   </head>
   <body class="bg-slate-50 text-slate-900">
     <div id="root"></div>
@@ -53,9 +67,35 @@ ${cssLinks}
 `
 }
 
-const html = generateHTML()
-fs.writeFileSync(path.join(CLIENT_DIR, 'index.html'), html, 'utf8')
-fs.writeFileSync(path.join(CLIENT_DIR, '404.html'), html, 'utf8')
+// 2. Generate 404.html with the spa-github-pages redirect script
+function generate404HTML() {
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>GeoPulse</title>
+    <script>
+      var pathSegmentsToKeep = 1;
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.host + l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
+`
+}
+
+const indexHtml = generateIndexHTML()
+const html404 = generate404HTML()
+
+fs.writeFileSync(path.join(CLIENT_DIR, 'index.html'), indexHtml, 'utf8')
+fs.writeFileSync(path.join(CLIENT_DIR, '404.html'), html404, 'utf8')
 fs.writeFileSync(path.join(CLIENT_DIR, '.nojekyll'), '')
 
-console.log('✓ Successfully generated index.html, 404.html, and .nojekyll in dist/client/')
+console.log('✓ Successfully generated index.html (with SPA redirect restoration), 404.html, and .nojekyll in dist/client/')
